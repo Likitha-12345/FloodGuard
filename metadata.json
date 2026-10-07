@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix FloodGuard AI – Urban Flood Nowcasting \u0026 Safe Route Intelligence",
+  "description": "AI-powered urban flood nowcasting (0–3h), drainage hydraulic surcharge simulation, street-level risk mapping, and flood-safe emergency routing for Indian metropolises.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
