@@ -160,7 +160,82 @@ export class FloodSimulationEngine {
     };
   }
 
+  /**
+   * Generate a flood-aware route recommendation for a trip between two points.
+   * This keeps the server route functional even when the UI does not render a full route planner page.
+   */
+  public static calculateSafeRoute(
+    cityId: CityId,
+    origin: [number, number],
+    originLabel: string,
+    destination: [number, number],
+    destinationLabel: string,
+    streets: StreetFeature[],
+    emergencyMode: boolean = false,
+    clearanceThresholdCm: number = 15
+  ): {
+    cityId: CityId;
+    origin: [number, number];
+    originLabel: string;
+    destination: [number, number];
+    destinationLabel: string;
+    emergencyMode: boolean;
+    clearanceThresholdCm: number;
+    routeType: 'safest' | 'balanced' | 'fastest' | 'emergency';
+    status: 'recommended' | 'unsafe';
+    warning?: string;
+    estimatedDurationMin: number;
+    safeStreet: {
+      id: string;
+      name: string;
+      maxDepthCm: number;
+      risk: RiskLevel;
+    } | null;
+    candidateStreets: Array<{
+      id: string;
+      name: string;
+      maxDepthCm: number;
+      risk: RiskLevel;
+    }>;
+  } {
+    const candidateStreets = [...streets]
+      .filter((street) => (street.currentDepthCm ?? 0) <= clearanceThresholdCm)
+      .sort((a, b) => (a.currentDepthCm ?? 0) - (b.currentDepthCm ?? 0));
 
+    const safeStreet = candidateStreets[0] ?? null;
+    const lowRiskStreet = streets
+      .slice()
+      .sort((a, b) => (a.currentDepthCm ?? 0) - (b.currentDepthCm ?? 0))[0] || null;
+
+    const routeType = emergencyMode ? 'emergency' : safeStreet ? 'safest' : 'balanced';
+    const isUnsafe = !safeStreet && !lowRiskStreet;
+
+    return {
+      cityId,
+      origin,
+      originLabel,
+      destination,
+      destinationLabel,
+      emergencyMode,
+      clearanceThresholdCm,
+      routeType,
+      status: isUnsafe ? 'unsafe' : 'recommended',
+      warning: isUnsafe ? 'No route cleared the configured water-depth threshold. Consider emergency diversion.' : undefined,
+      estimatedDurationMin: Math.max(12, Math.round((Math.abs(origin[0] - destination[0]) + Math.abs(origin[1] - destination[1])) * 2600)),
+      safeStreet: safeStreet ? {
+        id: safeStreet.id,
+        name: safeStreet.name,
+        maxDepthCm: safeStreet.currentDepthCm ?? 0,
+        risk: safeStreet.currentRisk ?? 'safe'
+      } : null,
+      candidateStreets: (candidateStreets.length ? candidateStreets : streets).slice(0, 5).map((street) => ({
+        id: street.id,
+        name: street.name,
+        maxDepthCm: street.currentDepthCm ?? 0,
+        risk: street.currentRisk ?? 'safe'
+      }))
+    };
+  }
 
   /**
    * Generate city-wide summary telemetry

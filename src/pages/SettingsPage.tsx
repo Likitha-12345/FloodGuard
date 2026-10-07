@@ -22,7 +22,8 @@ import {
   Home,
   Briefcase,
   GraduationCap,
-  HeartHandshake
+  HeartHandshake,
+  Navigation
 } from 'lucide-react';
 import { CityId, RainfallScenario } from '../types/flood';
 import { CITIES_INFO } from '../data/citiesData';
@@ -81,6 +82,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   });
 
   // 3. Trip Preferences
+  const [defaultRouteType, setDefaultRouteType] = useState<'fastest' | 'safest' | 'balanced'>('safest');
   const [vehicleType, setVehicleType] = useState<TripVehicle>(() => {
     try {
       const saved = localStorage.getItem('floodguard_trip_vehicle');

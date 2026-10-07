@@ -115,6 +115,4 @@ export class FloodGuardApi {
       return { success: true, scenario: matched };
     }
   }
-
-  }
 }

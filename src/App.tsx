@@ -17,7 +17,6 @@ import { TopNav } from './components/TopNav';
 // Dedicated Pages
 import { DashboardPage } from './pages/DashboardPage';
 import { LiveFloodMapPage } from './pages/LiveFloodMapPage';
-import { RoutePlannerPage } from './pages/RoutePlannerPage';
 import { TripCheckPage } from './pages/TripCheckPage';
 import { EmergencyOperationsPage } from './pages/EmergencyOperationsPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -52,20 +51,12 @@ export default function App() {
     const validPages: PageId[] = [
       'dashboard',
       'map',
-      'route-planner',
       'trip-check',
       'emergency',
       'settings'
     ];
     return validPages.includes(hash as PageId) ? (hash as PageId) : 'dashboard';
   });
-
-  // Trip Check to Route Planner handoff parameters
-  const [routePlannerParams, setRoutePlannerParams] = useState<{
-    from: string;
-    to: string;
-    vehicle: string;
-  } | null>(null);
 
   // Sync hash with page
   const handleNavigate = (page: PageId) => {
@@ -100,7 +91,6 @@ export default function App() {
       const validPages: PageId[] = [
         'dashboard',
         'map',
-        'route-planner',
         'trip-check',
         'emergency',
         'settings'
@@ -274,7 +264,6 @@ export default function App() {
               summary={summary}
               activeScenario={activeScenario}
               onNavigateToMap={() => handleNavigate('map')}
-              onNavigateToRoute={() => handleNavigate('route-planner')}
               onNavigateToTripCheck={() => handleNavigate('trip-check')}
             />
           )}
@@ -286,21 +275,9 @@ export default function App() {
               activeScenario={activeScenario}
               timeOffsetMin={timeOffsetMin}
               onChangeTimeOffset={(offset) => setTimeOffsetMin(offset)}
-              onNavigateToRouteWithStreet={(st) => {
-                handleNavigate('route-planner');
+              onNavigateToTripCheckWithStreet={() => {
+                handleNavigate('trip-check');
               }}
-            />
-          )}
-
-          {currentPage === 'route-planner' && (
-            <RoutePlannerPage
-              currentCity={currentCity}
-              streets={streets}
-              timeOffsetMin={timeOffsetMin}
-              activeScenario={activeScenario}
-              initialOrigin={routePlannerParams?.from}
-              initialDestination={routePlannerParams?.to}
-              initialVehicle={routePlannerParams?.vehicle}
             />
           )}
 
@@ -309,10 +286,6 @@ export default function App() {
               currentCity={currentCity}
               streets={streets}
               activeScenario={activeScenario}
-              onOpenSafeRoute={(params) => {
-                setRoutePlannerParams(params);
-                handleNavigate('route-planner');
-              }}
             />
           )}
 
@@ -322,7 +295,7 @@ export default function App() {
               streets={streets}
               drainage={drainage}
               summary={summary}
-              onNavigateToRoute={() => handleNavigate('route-planner')}
+              onNavigateToTripCheck={() => handleNavigate('trip-check')}
             />
           )}
 
